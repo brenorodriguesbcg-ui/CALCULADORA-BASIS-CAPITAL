@@ -35,14 +35,11 @@ st.title("📊 Engenharia Financeira")
 st.subheader("Basis Capital — Estratégia 180 Meses")
 st.markdown("---")
 
-# Fator exato para cravar R$ 341,50 de meia parcela em 100k
-FATOR_TABELA = 0.006830
-
 # 1. Campos de Entrada (Caixas de texto ideais para digitar no celular)
 credito_nominal = st.number_input(
     "Valor NOMINAL do Consórcio (R$):", 
     min_value=10000, 
-    value=100000, 
+    value=500000, # Iniciando em 500k para você testar direto
     step=10000,
     format="%d"
 )
@@ -57,6 +54,14 @@ entrada_bolso = st.number_input(
 
 # Chave de ativação liga/desliga elegante
 usar_embutido = st.toggle("Utilizar Lance Embutido (30%)", value=True)
+
+# ===== AJUSTE INTELIGENTE DO FATOR DA TABELA REAL =====
+# Se o crédito for a partir de 300k, usa o fator de 500k (parcela cheia 2.795,00)
+# Caso contrário, usa o fator menor (meia parcela 341,50 para 100k)
+if credito_nominal >= 300000:
+    FATOR_TABELA = 0.005590
+else:
+    FATOR_TABELA = 0.006830
 
 # 2. Execução dos Cálculos Matemáticos Reais
 parcela_integral_original = credito_nominal * FATOR_TABELA
@@ -106,7 +111,7 @@ with col4:
 st.markdown("### 🏢 Pós-Contemplação")
 st.warning(f"💡 **Nova Parcela Recalculada:** R$ {nova_parcela_integral:,.2f} / mês")
 
-# Abas interativas que mudam com um toque no celular
+# Abas interativas
 tab1, tab2 = st.tabs(["💼 Cenário A: Imóvel", "📈 Cenário B: Renda Fixa"])
 
 with tab1:
