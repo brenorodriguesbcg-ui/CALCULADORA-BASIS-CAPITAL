@@ -93,4 +93,75 @@ else:
     credito_liquido = credito_nominal
     proporcao_abatimento_embutido = 1.0
 
-lance_total = lance_em
+lance_total = lance_embutido + entrada_bolso
+
+# Recálculo do Saldo Devedor e Nova Parcela pós-contemplação
+saldo_total_com_taxas = parcela_integral_original * 180
+saldo_devedor_pos_embutido = saldo_total_com_taxas * proporcao_abatimento_embutido
+saldo_devedor_final = max(0.0, saldo_devedor_pos_embutido - entrada_bolso)
+nova_parcela_integral = saldo_devedor_final / 180
+
+# Projeções de Rentabilidade
+aluguel_estimado = credito_liquido * 0.007
+sobra_imovel = aluguel_estimado - nova_parcela_integral
+
+rendimento_rf = credito_liquido * 0.0095
+sobra_rf = rendimento_rf - nova_parcela_integral
+
+# 3. Interface Visual dos Resultados
+st.markdown("---")
+st.markdown("### 📉 Pré-Contemplação")
+col1, col2 = st.columns(2)
+with col1:
+    st.markdown(f'<div class="metric-card"><div class="metric-title">MEIA PARCELA (ESPERA)</div><div class="metric-value">{m(meia_parcela)}</div></div>', unsafe_allow_html=True)
+with col2:
+    st.markdown(f'<div class="metric-card"><div class="metric-title">PARCELA INTEGRAL</div><div class="metric-value">{m(parcela_integral_original)}</div></div>', unsafe_allow_html=True)
+
+st.markdown("### 🔑 Na Contemplação")
+st.info(f"🎯 **CRÉDITO LÍQUIDO DISPONÍVEL:** {m(credito_liquido)}")
+
+col3, col4 = st.columns(2)
+with col3:
+    st.markdown(f'<div class="metric-card"><div class="metric-title">LANCE TOTAL</div><div class="metric-value">{m(lance_total)}</div></div>', unsafe_allow_html=True)
+with col4:
+    st.markdown(f'<div class="metric-card"><div class="metric-title">PERCENTUAL LANCE</div><div class="metric-value">{((lance_total/credito_nominal)*100):.1f}%</div></div>', unsafe_allow_html=True)
+
+st.markdown("### 🏢 Pós-Contemplação")
+st.warning(f"💡 **Nova Parcela Recalculada:** {m(nova_parcela_integral)} / mês")
+
+# Abas interativas para os cenários comerciais
+tab1, tab2 = st.tabs(["💼 Cenário A: Imóvel", "📈 Cenário B: Renda Fixa Inteligente"])
+
+with tab1:
+    st.markdown(f"**Aluguel Estimado (0.7%):** {m(aluguel_estimado)} / mês")
+    if sobra_imovel >= 0:
+        st.success(f"🎉 **SOBRA NO BOLSO:** + {m(sobra_imovel)} / mês")
+    else:
+        st.error(f"📉 **ESFORÇO LÍQUIDO:** - {m(abs(sobra_imovel))} / mês")
+
+with tab2:
+    st.markdown("### 🔍 Estratégia de Alavancagem em Renda Fixa")
+    st.markdown(
+        f"""
+        <div class="explanation-box">
+            <strong>Como funciona esta operação?</strong><br>
+            Ao invés de comprar um patrimônio físico, o capital líquido liberado de 
+            <strong>{m(credito_liquido)}</strong> é integralmente aplicado em uma estrutura de ativos de 
+            Renda Fixa/LCI/FIIs estruturados, gerando uma taxa média estimada de <strong>0,95% ao mês</strong> de forma isenta ou líquida.
+        </div>
+        """, 
+        unsafe_allow_html=True
+    )
+    
+    # Detalhamento dos valores para o cliente
+    st.write(f"📈 **Rendimento Bruto da Aplicação:** {m(rendimento_rf)} / mês")
+    st.write(f"📉 **Custo de Manutenção (Nova Parcela):** {m(nova_parcela_integral)} / mês")
+    st.markdown("---")
+    
+    if sobra_rf >= 0:
+        st.success(f"🎉 **RESULTADO POSITIVO (Venda de Renda):** O rendimento do próprio capital aplicado paga a parcela do consórcio e ainda sobra **{m(sobra_rf)} por mês** líquidos no bolso do seu cliente!")
+    else:
+        st.error(f"📉 **DIFERENÇA DE APORTE:** O rendimento cobre a maior parte da estrutura, restando apenas um esforço complementar de **{m(abs(sobra_rf))} por mês** para carregar o patrimônio alavancado.")
+
+st.markdown("---")
+st.caption("Uso exclusivo de prospecção — Basis Capital.")
