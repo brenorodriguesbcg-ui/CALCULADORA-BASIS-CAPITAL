@@ -41,7 +41,11 @@ st.markdown("""
         border-radius: 8px;
         border-left: 4px solid #1f77b4;
         margin-top: 10px;
-        margin-bottom: 10px;
+        margin-bottom: 15px;
+        color: #212529 !important; /* Força a cor do texto para escuro */
+    }
+    .explanation-box strong {
+        color: #004085 !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -54,7 +58,7 @@ st.markdown("---")
 def m(valor):
     return f"R$ {valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
-# 1. Entrada de Dados (Apenas digitação direta)
+# 1. Entrada de Dados (Digitação direta)
 credito_nominal = st.number_input(
     "Valor NOMINAL do Consórcio (R$):", 
     min_value=0, 
@@ -133,35 +137,52 @@ st.warning(f"💡 **Nova Parcela Recalculada:** {m(nova_parcela_integral)} / mê
 tab1, tab2 = st.tabs(["💼 Cenário A: Imóvel", "📈 Cenário B: Renda Fixa Inteligente"])
 
 with tab1:
-    st.markdown(f"**Aluguel Estimado (0.7%):** {m(aluguel_estimado)} / mês")
-    if sobra_imovel >= 0:
-        st.success(f"🎉 **SOBRA NO BOLSO:** + {m(sobra_imovel)} / mês")
-    else:
-        st.error(f"📉 **ESFORÇO LÍQUIDO:** - {m(abs(sobra_imovel))} / mês")
-
-with tab2:
-    st.markdown("### 🔍 Estratégia de Alavancagem em Renda Fixa")
+    st.markdown("### 🏢 Alavancagem Patrimonial via Imóvel")
     st.markdown(
         f"""
         <div class="explanation-box">
-            <strong>Como funciona esta operação?</strong><br>
-            Ao invés de comprar um patrimônio físico, o capital líquido liberado de 
-            <strong>{m(credito_liquido)}</strong> é integralmente aplicado em uma estrutura de ativos de 
-            Renda Fixa/LCI/FIIs estruturados, gerando uma taxa média estimada de <strong>0,95% ao mês</strong> de forma isenta ou líquida.
+            <strong>Por que usamos esses resultados?</strong><br>
+            A taxa de <strong>0,7% ao mês</strong> representa o rendimento médio estimado de aluguel 
+            sobre o valor investido em imóveis prontos ou comerciais bem localizados. <br><br>
+            Com o crédito líquido de <strong>{m(credito_liquido)}</strong>, o cliente adquire o patrimônio físico. 
+            O inquilino assume o pagamento que cobre ou amortiza a nova parcela de <strong>{m(nova_parcela_integral)}</strong>.
         </div>
         """, 
         unsafe_allow_html=True
     )
     
-    # Detalhamento dos valores para o cliente
-    st.write(f"📈 **Rendimento Bruto da Aplicação:** {m(rendimento_rf)} / mês")
+    st.write(f"🏢 **Aluguel Mensal Estimado (0.7%):** {m(aluguel_estimado)} / mês")
+    st.write(f"📉 **Nova Parcela do Consórcio:** {m(nova_parcela_integral)} / mês")
+    st.markdown("---")
+    
+    if sobra_imovel >= 0:
+        st.success(f"🎉 **SOBRA NO BOLSO:** O aluguel paga 100% da parcela e ainda gera uma renda livre de **{m(sobra_imovel)} / mês** para o cliente!")
+    else:
+        st.error(f"📉 **ESFORÇO LÍQUIDO:** O aluguel cobre a maior parte da estrutura, reduzindo o custo do imóvel para apenas **{m(abs(sobra_imovel))} / mês** do bolso.")
+
+with tab2:
+    st.markdown("### 🔍 Alavancagem Financeira via Renda Fixa")
+    st.markdown(
+        f"""
+        <div class="explanation-box">
+            <strong>Por que usamos esses resultados?</strong><br>
+            A taxa de <strong>0,95% ao mês</strong> reflete um portfólio estruturado de ativos conservadores e isentos 
+            (como LCIs, LCAs ou FIIs de papel de primeira linha).<br><br>
+            Ao invés de comprar um tijolo, o capital de <strong>{m(credito_liquido)}</strong> é aplicado e rende juros 
+            mensais superiores ao custo do consórcio, gerando uma operação com prêmio real sobre a parcela de <strong>{m(nova_parcela_integral)}</strong>.
+        </div>
+        """, 
+        unsafe_allow_html=True
+    )
+    
+    st.write(f"📈 **Rendimento Mensal da Aplicação (0.95%):** {m(rendimento_rf)} / mês")
     st.write(f"📉 **Custo de Manutenção (Nova Parcela):** {m(nova_parcela_integral)} / mês")
     st.markdown("---")
     
     if sobra_rf >= 0:
-        st.success(f"🎉 **RESULTADO POSITIVO (Venda de Renda):** O rendimento do próprio capital aplicado paga a parcela do consórcio e ainda sobra **{m(sobra_rf)} por mês** líquidos no bolso do seu cliente!")
+        st.success(f"🎉 **RESULTADO POSITIVO:** O rendimento da aplicação liquida a parcela do consórcio de forma automática e coloca mais **{m(sobra_rf)} / mês** líquidos na conta do cliente!")
     else:
-        st.error(f"📉 **DIFERENÇA DE APORTE:** O rendimento cobre a maior parte da estrutura, restando apenas um esforço complementar de **{m(abs(sobra_rf))} por mês** para carregar o patrimônio alavancado.")
+        st.error(f"📉 **DIFERENÇA DE APORTE:** A aplicação carrega quase toda a operação, exigindo apenas **{m(abs(sobra_rf))} / mês** de complemento.")
 
 st.markdown("---")
 st.caption("Uso exclusivo de prospecção — Basis Capital.")
