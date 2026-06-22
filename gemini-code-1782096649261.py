@@ -1,6 +1,6 @@
 import streamlit as st
 
-# Configuração para o app abrir bonito tanto no computador quanto no celular
+# Configuração de página para mobile
 st.set_page_config(
     page_title="Simulador Basis Capital", 
     page_icon="📊", 
@@ -8,7 +8,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Estilização CSS para deixar os blocos (cards) com visual premium no celular
+# Estilização visual dos blocos de resposta
 st.markdown("""
     <style>
     .metric-card {
@@ -35,13 +35,14 @@ st.title("📊 Engenharia Financeira")
 st.subheader("Basis Capital — Estratégia 180 Meses")
 st.markdown("---")
 
-# 1. Campos de Entrada (Caixas de texto ideais para digitar no celular)
+# 1. Campos de Entrada com formatação automática de pontos e milhar
+# O parâmetro format="%,d" garante a pontuação visual correta ao digitar
 credito_nominal = st.number_input(
     "Valor NOMINAL do Consórcio (R$):", 
-    min_value=10000, 
-    value=500000, # Iniciando em 500k para você testar direto
+    min_value=0, 
+    value=500000, 
     step=10000,
-    format="%d"
+    format="%,d"
 )
 
 entrada_bolso = st.number_input(
@@ -49,21 +50,19 @@ entrada_bolso = st.number_input(
     min_value=0, 
     value=0, 
     step=5000,
-    format="%d"
+    format="%,d"
 )
 
-# Chave de ativação liga/desliga elegante
+# Chave liga/desliga para o embutido
 usar_embutido = st.toggle("Utilizar Lance Embutido (30%)", value=True)
 
-# ===== AJUSTE INTELIGENTE DO FATOR DA TABELA REAL =====
-# Se o crédito for a partir de 300k, usa o fator de 500k (parcela cheia 2.795,00)
-# Caso contrário, usa o fator menor (meia parcela 341,50 para 100k)
+# ====== AJUSTE INTELIGENTE DO FATOR DA TABELA REAL =====
 if credito_nominal >= 300000:
-    FATOR_TABELA = 0.005590
+    FATOR_TABELA = 0.005590  # Cravado: 500k -> Parcela Cheia R$ 2.795,00 / Meia R$ 1.397,50
 else:
-    FATOR_TABELA = 0.006830
+    FATOR_TABELA = 0.006830  # Cravado: 100k -> Meia Parcela R$ 341,50
 
-# 2. Execução dos Cálculos Matemáticos Reais
+# 2. Execução dos Cálculos Matemáticos
 parcela_integral_original = credito_nominal * FATOR_TABELA
 meia_parcela = parcela_integral_original * 0.50
 
@@ -100,33 +99,4 @@ with col2:
     st.markdown(f'<div class="metric-card"><div class="metric-title">PARCELA INTEGRAL</div><div class="metric-value">R$ {parcela_integral_original:,.2f}</div></div>', unsafe_allow_html=True)
 
 st.markdown("### 🔑 Na Contemplação")
-st.info(f"🎯 **CRÉDITO LÍQUIDO DISPONÍVEL:** R$ {credito_liquido:,.2f}")
-
-col3, col4 = st.columns(2)
-with col3:
-    st.markdown(f'<div class="metric-card"><div class="metric-title">LANCE TOTAL</div><div class="metric-value">R$ {lance_total:,.2f}</div></div>', unsafe_allow_html=True)
-with col4:
-    st.markdown(f'<div class="metric-card"><div class="metric-title">PERCENTUAL LANCE</div><div class="metric-value">{((lance_total/credito_nominal)*100):.1f}%</div></div>', unsafe_allow_html=True)
-
-st.markdown("### 🏢 Pós-Contemplação")
-st.warning(f"💡 **Nova Parcela Recalculada:** R$ {nova_parcela_integral:,.2f} / mês")
-
-# Abas interativas
-tab1, tab2 = st.tabs(["💼 Cenário A: Imóvel", "📈 Cenário B: Renda Fixa"])
-
-with tab1:
-    st.markdown(f"**Aluguel Estimado (0.7%):** R$ {aluguel_estimado:,.2f} / mês")
-    if sobra_imovel >= 0:
-        st.success(f"🎉 **SOBRA NO BOLSO:** + R$ {sobra_imovel:,.2f} / mês")
-    else:
-        st.error(f"📉 **ESFORÇO LÍQUIDO:** - R$ {abs(sobra_imovel):,.2f} / mês")
-
-with tab2:
-    st.markdown(f"**Rendimento Isento (0.95%):** R$ {rendimento_rf:,.2f} / mês")
-    if sobra_rf >= 0:
-        st.success(f"🎉 **SOBRA NO BOLSO:** + R$ {sobra_rf:,.2f} / mês")
-    else:
-        st.error(f"📉 **ESFORÇO LÍQUIDO:** - R$ {abs(sobra_rf):,.2f} / mês")
-
-st.markdown("---")
-st.caption("Uso exclusivo de prospecção — Basis Capital.")
+st.info(f"🎯 **CRÉDITO LÍQUIDO DISPONÍVEL:** R$
