@@ -42,15 +42,19 @@ st.title("📊 Engenharia Financeira")
 st.subheader("Basis Capital — Estratégia 180 Meses")
 st.markdown("---")
 
-# 1. Campos de Entrada (Otimizados para digitação limpa e rápida no celular)
+# Função auxiliar para formatação de moeda no padrão brasileiro (R$ 1.000,00)
+def m(valor):
+    return f"R$ {valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+# 1. Campos de Entrada (Otimizados para digitação simples e direta)
 credito_nominal = st.number_input(
     "Valor NOMINAL do Consórcio (R$):", 
     min_value=0, 
     value=500000, 
     step=10000
 )
-# Exibe o valor formatado em formato BR logo abaixo para validação visual do cliente
-st.markdown(f'<div class="money-label">Confirmado: R$ {credito_nominal:,.2f}.replace(",", "X").replace(".", ",").replace("X", ".")</div>', unsafe_allow_html=True)
+# Confirmação visual em formato de moeda logo abaixo do input
+st.markdown(f'<div class="money-label">Confirmado: {m(credito_nominal)}</div>', unsafe_allow_html=True)
 
 entrada_bolso = st.number_input(
     "Aporte / Entrada do Bolso (R$):", 
@@ -58,7 +62,7 @@ entrada_bolso = st.number_input(
     value=0, 
     step=5000
 )
-st.markdown(f'<div class="money-label">Confirmado: R$ {entrada_bolso:,.2f}.replace(",", "X").replace(".", ",").replace("X", ".")</div>', unsafe_allow_html=True)
+st.markdown(f'<div class="money-label">Confirmado: {m(entrada_bolso)}</div>', unsafe_allow_html=True)
 
 # Chave liga/desliga para o embutido
 usar_embutido = st.toggle("Utilizar Lance Embutido (30%)", value=True)
@@ -87,27 +91,4 @@ lance_total = lance_embutido + entrada_bolso
 # Recálculo do Saldo Devedor e Nova Parcela pós-contemplação
 saldo_total_com_taxas = parcela_integral_original * 180
 saldo_devedor_pos_embutido = saldo_total_com_taxas * proporcao_abatimento_embutido
-saldo_devedor_final = max(0.0, saldo_devedor_pos_embutido - entrada_bolso)
-nova_parcela_integral = saldo_devedor_final / 180
-
-# Projeções de Rentabilidade
-aluguel_estimado = credito_liquido * 0.007
-sobra_imovel = aluguel_estimado - nova_parcela_integral
-
-rendimento_rf = credito_liquido * 0.0095
-sobra_rf = rendimento_rf - nova_parcela_integral
-
-# Função auxiliar para formatação de moeda BR nas tabelas e cards
-def m(valor):
-    return f"R$ {valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
-
-# 3. Interface Visual do Aplicativo
-st.markdown("### 📉 Pré-Contemplação")
-col1, col2 = st.columns(2)
-with col1:
-    st.markdown(f'<div class="metric-card"><div class="metric-title">MEIA PARCELA (ESPERA)</div><div class="metric-value">{m(meia_parcela)}</div></div>', unsafe_allow_html=True)
-with col2:
-    st.markdown(f'<div class="metric-card"><div class="metric-title">PARCELA INTEGRAL</div><div class="metric-value">{m(parcela_integral_original)}</div></div>', unsafe_allow_html=True)
-
-st.markdown("### 🔑 Na Contemplação")
-st.info(f"🎯 **CRÉDITO LÍ
+saldo_devedor
