@@ -29,10 +29,10 @@ st.markdown("""
         font-weight: bold;
     }
     .money-label {
-        font-size: 15px;
+        font-size: 16px;
         color: #0066cc;
         font-weight: bold;
-        margin-top: -8px;
+        margin-top: 5px;
         margin-bottom: 15px;
     }
     </style>
@@ -46,48 +46,42 @@ st.markdown("---")
 def m(valor):
     return f"R$ {valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
-# 1. Campos de Entrada (Atualização automática ao digitar)
+# 1. Entrada de Dados de Alta Interatividade (Slider + Campo de Texto juntos!)
+st.markdown("**Selecione ou Digite o Valor do Crédito:**")
+credito_nominal = st.slider(
+    "Arraste para ajustar rápido (R$):",
+    min_value=100000,
+    max_value=2000000,
+    value=500000,
+    step=50000
+)
 credito_nominal = st.number_input(
-    "Valor NOMINAL do Consórcio (R$):", 
+    "Ou digite o valor exato aqui (R$):", 
     min_value=0, 
-    value=500000, 
+    value=int(credito_nominal), 
     step=10000
 )
-# Tag de confirmação corrigida para atualizar em tempo real sem travar
-st.markdown(f'<div class="money-label">Valor Digitado: {m(credito_nominal)}</div>', unsafe_allow_html=True)
+st.markdown(f'<div class="money-label">Crédito Selecionado: {m(credito_nominal)}</div>', unsafe_allow_html=True)
 
+st.markdown("---")
+
+st.markdown("**Selecione ou Digite o Aporte do Bolso:**")
+entrada_bolso = st.slider(
+    "Arraste para ajustar a entrada (R$):",
+    min_value=0,
+    max_value=500000,
+    value=0,
+    step=10000
+)
 entrada_bolso = st.number_input(
-    "Aporte / Entrada do Bolso (R$):", 
+    "Ou digite a entrada exata aqui (R$):", 
     min_value=0, 
-    value=0, 
+    value=int(entrada_bolso), 
     step=5000
 )
-st.markdown(f'<div class="money-label">Valor Digitado: {m(entrada_bolso)}</div>', unsafe_allow_html=True)
+st.markdown(f'<div class="money-label">Aporte do Bolso: {m(entrada_bolso)}</div>', unsafe_allow_html=True)
 
 # Chave liga/desliga para o embutido
 usar_embutido = st.toggle("Utilizar Lance Embutido (30%)", value=True)
 
-# ====== AJUSTE INTELIGENTE DO FATOR DA TABELA REAL =====
-if credito_nominal >= 300000:
-    FATOR_TABELA = 0.005590  # Cravado: 500k -> Parcela Cheia R$ 2.795,00 / Meia R$ 1.397,50
-else:
-    FATOR_TABELA = 0.006830  # Cravado: 100k -> Meia Parcela R$ 341,50
-
-# 2. Execução dos Cálculos Matemáticos Reais
-parcela_integral_original = credito_nominal * FATOR_TABELA
-meia_parcela = parcela_integral_original * 0.50
-
-if usar_embutido:
-    lance_embutido = credito_nominal * 0.30
-    credito_liquido = credito_nominal - lance_embutido
-    proporcao_abatimento_embutido = 0.70
-else:
-    lance_embutido = 0.0
-    credito_liquido = credito_nominal
-    proporcao_abatimento_embutido = 1.0
-
-lance_total = lance_embutido + entrada_bolso
-
-# Recálculo do Saldo Devedor e Nova Parcela pós-contemplação
-saldo_total_com_taxas = parcela_integral_original * 180
-saldo_devedor_pos_embutido =
+# ====== AJUSTE INTELIGENTE DO FATOR DA TABELA
