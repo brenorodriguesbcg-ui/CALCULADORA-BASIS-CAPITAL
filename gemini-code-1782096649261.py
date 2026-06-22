@@ -46,9 +46,9 @@ st.markdown("---")
 def m(valor):
     return f"R$ {valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
-# 1. Entrada de Dados de Alta Interatividade (Slider + Campo de Texto juntos!)
+# 1. Entrada de Dados de Alta Interatividade
 st.markdown("**Selecione ou Digite o Valor do Crédito:**")
-credito_nominal = st.slider(
+credito_slider = st.slider(
     "Arraste para ajustar rápido (R$):",
     min_value=100000,
     max_value=2000000,
@@ -58,7 +58,7 @@ credito_nominal = st.slider(
 credito_nominal = st.number_input(
     "Ou digite o valor exato aqui (R$):", 
     min_value=0, 
-    value=int(credito_nominal), 
+    value=int(credito_slider), 
     step=10000
 )
 st.markdown(f'<div class="money-label">Crédito Selecionado: {m(credito_nominal)}</div>', unsafe_allow_html=True)
@@ -66,7 +66,7 @@ st.markdown(f'<div class="money-label">Crédito Selecionado: {m(credito_nominal)
 st.markdown("---")
 
 st.markdown("**Selecione ou Digite o Aporte do Bolso:**")
-entrada_bolso = st.slider(
+entrada_slider = st.slider(
     "Arraste para ajustar a entrada (R$):",
     min_value=0,
     max_value=500000,
@@ -76,7 +76,7 @@ entrada_bolso = st.slider(
 entrada_bolso = st.number_input(
     "Ou digite a entrada exata aqui (R$):", 
     min_value=0, 
-    value=int(entrada_bolso), 
+    value=int(entrada_slider), 
     step=5000
 )
 st.markdown(f'<div class="money-label">Aporte do Bolso: {m(entrada_bolso)}</div>', unsafe_allow_html=True)
@@ -84,4 +84,32 @@ st.markdown(f'<div class="money-label">Aporte do Bolso: {m(entrada_bolso)}</div>
 # Chave liga/desliga para o embutido
 usar_embutido = st.toggle("Utilizar Lance Embutido (30%)", value=True)
 
-# ====== AJUSTE INTELIGENTE DO FATOR DA TABELA
+# ====== AJUSTE INTELIGENTE DO FATOR DA TABELA REAL =====
+if credito_nominal >= 300000:
+    FATOR_TABELA = 0.005590  # Cravado: 500k -> Parcela Cheia R$ 2.795,00 / Meia R$ 1.397,50
+else:
+    FATOR_TABELA = 0.006830  # Cravado: 100k -> Meia Parcela R$ 341,50
+
+# 2. Execução dos Cálculos Matemáticos Reais
+parcela_integral_original = credito_nominal * FATOR_TABELA
+meia_parcela = parcela_integral_original * 0.50
+
+if usar_embutido:
+    lance_embutido = credito_nominal * 0.30
+    credito_liquido = credito_nominal - lance_embutido
+    proporcao_abatimento_embutido = 0.70
+else:
+    lance_embutido = 0.0
+    credito_liquido = credito_nominal
+    proporcao_abatimento_embutido = 1.0
+
+lance_total = lance_embutido + entrada_bolso
+
+# Recálculo do Saldo Devedor e Nova Parcela pós-contemplação
+saldo_total_com_taxas = parcela_integral_original * 180
+saldo_devedor_pos_embutido = saldo_total_com_taxas * proporcao_abatimento_embutido
+saldo_devedor_final = max(0.0, saldo_devedor_pos_embutido - entrada_bolso)
+nova_parcela_integral = saldo_devedor_final / 180
+
+# Projeções de Rentabilidade
+aluguel_estimado = credito_
