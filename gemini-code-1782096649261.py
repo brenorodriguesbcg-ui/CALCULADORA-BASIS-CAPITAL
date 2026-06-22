@@ -32,8 +32,16 @@ st.markdown("""
         font-size: 16px;
         color: #0066cc;
         font-weight: bold;
-        margin-top: 5px;
+        margin-top: -10px;
         margin-bottom: 15px;
+    }
+    .explanation-box {
+        background-color: #f1f8ff;
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 4px solid #1f77b4;
+        margin-top: 10px;
+        margin-bottom: 10px;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -46,37 +54,19 @@ st.markdown("---")
 def m(valor):
     return f"R$ {valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
-# 1. Entrada de Dados de Alta Interatividade
-st.markdown("**Selecione ou Digite o Valor do Crédito:**")
-credito_slider = st.slider(
-    "Arraste para ajustar rápido (R$):",
-    min_value=100000,
-    max_value=2000000,
-    value=500000,
-    step=50000
-)
+# 1. Entrada de Dados (Apenas digitação direta)
 credito_nominal = st.number_input(
-    "Ou digite o valor exato aqui (R$):", 
+    "Valor NOMINAL do Consórcio (R$):", 
     min_value=0, 
-    value=int(credito_slider), 
+    value=500000, 
     step=10000
 )
 st.markdown(f'<div class="money-label">Crédito Selecionado: {m(credito_nominal)}</div>', unsafe_allow_html=True)
 
-st.markdown("---")
-
-st.markdown("**Selecione ou Digite o Aporte do Bolso:**")
-entrada_slider = st.slider(
-    "Arraste para ajustar a entrada (R$):",
-    min_value=0,
-    max_value=500000,
-    value=0,
-    step=10000
-)
 entrada_bolso = st.number_input(
-    "Ou digite a entrada exata aqui (R$):", 
+    "Aporte / Entrada do Bolso (R$):", 
     min_value=0, 
-    value=int(entrada_slider), 
+    value=0, 
     step=5000
 )
 st.markdown(f'<div class="money-label">Aporte do Bolso: {m(entrada_bolso)}</div>', unsafe_allow_html=True)
@@ -103,58 +93,4 @@ else:
     credito_liquido = credito_nominal
     proporcao_abatimento_embutido = 1.0
 
-lance_total = lance_embutido + entrada_bolso
-
-# Recálculo do Saldo Devedor e Nova Parcela pós-contemplação
-saldo_total_com_taxas = parcela_integral_original * 180
-saldo_devedor_pos_embutido = saldo_total_com_taxas * proporcao_abatimento_embutido
-saldo_devedor_final = max(0.0, saldo_devedor_pos_embutido - entrada_bolso)
-nova_parcela_integral = saldo_devedor_final / 180
-
-# Projeções de Rentabilidade
-aluguel_estimado = credito_liquido * 0.007
-sobra_imovel = aluguel_estimado - nova_parcela_integral
-
-rendimento_rf = credito_liquido * 0.0095
-sobra_rf = rendimento_rf - nova_parcela_integral
-
-# 3. INTERFACE VISUAL DOS RESULTADOS (O que estava faltando!)
-st.markdown("---")
-st.markdown("### 📉 Pré-Contemplação")
-col1, col2 = st.columns(2)
-with col1:
-    st.markdown(f'<div class="metric-card"><div class="metric-title">MEIA PARCELA (ESPERA)</div><div class="metric-value">{m(meia_parcela)}</div></div>', unsafe_allow_html=True)
-with col2:
-    st.markdown(f'<div class="metric-card"><div class="metric-title">PARCELA INTEGRAL</div><div class="metric-value">{m(parcela_integral_original)}</div></div>', unsafe_allow_html=True)
-
-st.markdown("### 🔑 Na Contemplação")
-st.info(f"🎯 **CRÉDITO LÍQUIDO DISPONÍVEL:** {m(credito_liquido)}")
-
-col3, col4 = st.columns(2)
-with col3:
-    st.markdown(f'<div class="metric-card"><div class="metric-title">LANCE TOTAL</div><div class="metric-value">{m(lance_total)}</div></div>', unsafe_allow_html=True)
-with col4:
-    st.markdown(f'<div class="metric-card"><div class="metric-title">PERCENTUAL LANCE</div><div class="metric-value">{((lance_total/credito_nominal)*100):.1f}%</div></div>', unsafe_allow_html=True)
-
-st.markdown("### 🏢 Pós-Contemplação")
-st.warning(f"💡 **Nova Parcela Recalculada:** {m(nova_parcela_integral)} / mês")
-
-# Abas interativas para os cenários comerciais
-tab1, tab2 = st.tabs(["💼 Cenário A: Imóvel", "📈 Cenário B: Renda Fixa"])
-
-with tab1:
-    st.markdown(f"**Aluguel Estimado (0.7%):** {m(aluguel_estimado)} / mês")
-    if sobra_imovel >= 0:
-        st.success(f"🎉 **SOBRA NO BOLSO:** + {m(sobra_imovel)} / mês")
-    else:
-        st.error(f"📉 **ESFORÇO LÍQUIDO:** - {m(abs(sobra_imovel))} / mês")
-
-with tab2:
-    st.markdown(f"**Rendimento Isento (0.95%):** {m(rendimento_rf)} / mês")
-    if sobra_rf >= 0:
-        st.success(f"🎉 **SOBRA NO BOLSO:** + {m(sobra_rf)} / mês")
-    else:
-        st.error(f"📉 **ESFORÇO LÍQUIDO:** - {m(abs(sobra_rf))} / mês")
-
-st.markdown("---")
-st.caption("Uso exclusivo de prospecção — Basis Capital.")
+lance_total = lance_em
